@@ -1,0 +1,22 @@
+img {
+    box-sizing: border-box;
+    border: 2px solid black;
+
+}
+p {
+
+    color: red;
+}
+
+#grid_wrapper_1 {
+    display: grid;
+    height: 1000vh;
+    font-size: 50px;
+    gap: 2px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 100px 1000px minmax(100px,1fr);
+    grid-template-areas: 
+    "hea"
+    "sec"
+    "foo"
+}
