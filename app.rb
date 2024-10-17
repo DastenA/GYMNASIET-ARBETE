@@ -11,5 +11,4 @@ end
 get ('/two') do
     @lista = ["gurka", "majs", "sallad", "paprika"]
     slim :two
-
 end
