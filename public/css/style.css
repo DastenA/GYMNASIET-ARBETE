@@ -62,11 +62,16 @@ a:hover {
     color: rgb(184, 105, 105);
 
 }
-input {
+form {
     position: absolute;
     bottom: 10vh;
-    border-radius: 5px;
     height: 17px;
+    
+}
+
+input {
+
+    border-radius: 5px;
     border: 1px solid black;
 }
 
