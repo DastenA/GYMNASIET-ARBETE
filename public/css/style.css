@@ -15,7 +15,6 @@ img {
 }
 
 header {
-
     grid-area: hea;
     display: flex;
     align-items: center;
@@ -24,18 +23,14 @@ header {
 }
 
 #section1 {
-
     grid-area: sec1;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-
-
 }
 
 #section2 {
-
     grid-area: sec2;
     display: flex;
     align-items: center;
@@ -44,9 +39,6 @@ header {
     margin-right: 400px;
     margin-bottom: 10vh;
     overflow: hidden;
-
-
-
 }
 
 a {
@@ -58,19 +50,15 @@ a {
 }
 
 a:hover {
-
     color: rgb(184, 105, 105);
-
 }
 form {
     position: absolute;
     bottom: 10vh;
     height: 17px;
-    
 }
 
 input {
-
     border-radius: 5px;
     border: 1px solid black;
 }

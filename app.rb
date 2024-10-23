@@ -10,9 +10,7 @@ post ('/one_p') do
 end
 
 get ('/one') do
-
     slim :one
-
 end
 
 post ('/two_p') do
