@@ -18,6 +18,7 @@ end
 post ('/two_p') do
     @data_two = params[:secret_two]
     p @data_two
+    
     redirect('/two')
 end
 
