@@ -23,7 +23,6 @@ end
 post ('/three_p') do
     @data_three = params[:img]
     session[:var_three] = @data_three
-    p @data_three
     redirect('/one')
 end
 
