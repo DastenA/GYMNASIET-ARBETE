@@ -37,6 +37,12 @@ input {
     border: 1px solid black;
 }
 
+input:hover {
+
+    color: rgb(184, 105, 105);
+
+}
+
 /*grid*/ 
 
 #grid_wrapper_1 {
