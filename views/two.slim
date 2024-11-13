@@ -3,11 +3,13 @@ section#section1
     p På denna sidan kan man dekryptera en bild.
     p Skriva in rätt lösenord för att kunna dekryptera bilden. Tryck sedan på "Submit" för att dekryptera bilden.
 
-section#section2 
+section#section2_22
+
     
-    img src="/img/bred.jpg" alt="yep"/
+    section#one
+        img src="/img/bred.jpg" alt="yep"/
 
-
-    form action="/two_p" method="post" 
-        input type="text" placeholder="Hemligt meddelanade..." name="secret_two"/
-        input type="submit" value="Submit"/
+    section#two 
+        form.form action="/two_p" method="post" 
+            input type="text" placeholder="Lösenord..." name="secret_two"/
+            input type="submit" value="Enter"/

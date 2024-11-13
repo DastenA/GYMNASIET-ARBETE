@@ -20,6 +20,13 @@ post ('/two_p') do
     redirect('/two')
 end
 
+post ('/three_p') do
+    @data_three = params[:secret_two]
+    session[:var_three] = @data_three
+    
+    redirect('/one')
+end
+
 get ('/two') do
     slim :two
 end
