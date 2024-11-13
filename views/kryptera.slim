@@ -1,16 +1,16 @@
-section#section1 
+section.section1 
 
     p På denna sidan kan man kryptera in en text i bilden nedan.
     p Du ska skriva in din text under bilden och sedan tryck på "Submit" för att kryptera texten.
 
-section#section2    
-    section#section2_1
-        form action="/three_p" method="post" 
-            input type="file" name="img"
+section.section2    
+    section.section2_1
+        form action="/kryptera_img" method="post" 
+            input type="file" name="img_kryptera"
             input type="submit" value="Enter"/
-    section#section2_2
-        img src="/img/hog.jpg" alt="yep"/
-    section#section2_3
-        form.form action="/one_p" method="post" 
+    section.section2_2
+        img src="/img/#{session[:session_kryptera_img]}" alt="yep"/
+    section.section2_3
+        form.form_down action="/kryptera_post" method="post" 
             input type="text" placeholder="Hemligt meddelanade..." name="secret_one"/
             input type="submit" value="Enter"/

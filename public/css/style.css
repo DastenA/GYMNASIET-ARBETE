@@ -14,114 +14,6 @@ img {
     width: auto;
 }
 
-header {
-    grid-area: hea;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 15vh;
-    grid-template-areas: 
-    "ar1 ar2"
-    
-}
-
-#ar1 {
-    grid-area: ar1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-#ar2 {
-    grid-area: ar2;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-
-
-}
-
-#section1 {
-    grid-area: sec1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-}
-
-#section2 {
-    grid-area: sec2;
-    display: grid;
-    overflow: hidden;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 55vh 18vh;
-    grid-template-areas: 
-    "sec2_1 sec2_2"
-    "sec2_3 sec2_3"
-}
-
-#section2_1 {
-
-    grid-area: sec2_1;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    overflow: hidden;
-    padding-right: 10px;
-
-}
-
-#section2_2 {
-
-    grid-area: sec2_2;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    overflow: hidden;
-    padding-left: 10px;
-
-}
-
-#section2_3 {
-
-    grid-area: sec2_3;
-    display: flex;
-    justify-content: center;
-
-}
-
-#section2_22 {
-    grid-area: sec2;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 55vh 18vh;
-    grid-template-areas: 
-    "sec2_22"
-    "sec2_222"
-    
-}
-
-
-#one {
-
-    grid-area: sec2_22;
-    display: flex;
-    overflow: hidden;
-    justify-content: center;
-    align-items: center;
-
-}
-
-#two {
-
-    grid-area: sec2_222;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-}
-
-
-
 a {
     padding: 10px;
     text-decoration: none;
@@ -133,7 +25,8 @@ a {
 a:hover {
     color: rgb(184, 105, 105);
 }
-.form {
+
+.form_down {
     position: absolute;
     bottom: 9.5vh;
     height: 17px;
@@ -143,6 +36,8 @@ input {
     border-radius: 5px;
     border: 1px solid black;
 }
+
+/*grid*/ 
 
 #grid_wrapper_1 {
     background: rgb(181, 181, 181);
@@ -156,3 +51,79 @@ input {
     "sec2"
 }
 
+.section1 {
+    grid-area: sec1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.section2 {
+    grid-area: sec2;
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 55vh 18vh;
+    grid-template-areas: 
+    "sec2_1 sec2_2"
+    "sec2_3 sec2_3"
+}
+
+.section2_1 {
+
+    grid-area: sec2_1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+    padding-right: 10px;
+
+}
+
+.section2_2 {
+
+    grid-area: sec2_2;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    padding-left: 10px;
+
+}
+
+.section2_3 {
+
+    grid-area: sec2_3;
+    display: flex;
+    justify-content: center;
+
+}
+
+/*Också grid men i header*/
+
+header {
+    grid-area: hea;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 15vh;
+    grid-template-areas: 
+    "sec1_head sec2_head"
+    
+}
+
+#sec_head_1 {
+    grid-area: sec1_head;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#sec_head_2 {
+    grid-area: sec2_head;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+
+}

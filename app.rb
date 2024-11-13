@@ -3,29 +3,39 @@ require 'sinatra/reloader'
 require 'slim'
 enable :sessions
 
-post ('/one_p') do
-    @data_one = params[:secret_one]
-    redirect('/one')
+#kryptera
+
+get ('/kryptera') do
+    slim :kryptera
+end
+
+post ('/kryptera_post') do
+    @data = params[:secret_one]
+    session[:session_meddelande] = @data
+    redirect('/kryptera')
 
 end
 
-get ('/one') do
-    slim :one
+post ('/kryptera_img') do
+    @data = params[:img_kryptera]
+    session[:session_kryptera_img] = @data
+    redirect('/kryptera')
 end
 
-post ('/two_p') do
-    @data_two = params[:secret_two]
-    session[:var_two] = @data_two
-    
-    redirect('/two')
+#dekryptera
+
+get ('/dekryptera') do
+    slim :dekryptera
 end
 
-post ('/three_p') do
-    @data_three = params[:img]
-    session[:var_three] = @data_three
-    redirect('/one')
+post ('/dekryptera_post') do
+    @data= params[:secret_two]
+    session[:session_password] = @data
+    redirect('/dekryptera')
 end
 
-get ('/two') do
-    slim :two
+post ('/dekryptera_img') do
+    @data = params[:img_dekryptera]
+    session[:session_dekryptera_img] = @data
+    redirect('/dekryptera')
 end

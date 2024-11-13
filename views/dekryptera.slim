@@ -1,0 +1,16 @@
+section.section1 
+
+    p På denna sidan kan man dekryptera en bild.
+    p Skriva in rätt lösenord för att kunna dekryptera bilden. Tryck sedan på "Submit" för att dekryptera bilden.
+
+section.section2
+    section.section2_1
+        form action="/dekryptera_img" method="post" 
+            input type="file" name="img_dekryptera"
+            input type="submit" value="Enter"/
+    section.section2_2
+        img src="/img/#{session[:session_dekryptera_img]}" alt="yep"/
+    section.section2_3
+        form.form_down action="/dekryptera_post" method="post" 
+            input type="text" placeholder="Lösenord..." name="secret_two"/
+            input type="submit" value="Enter"/
