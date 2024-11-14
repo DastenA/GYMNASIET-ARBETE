@@ -7,12 +7,14 @@ enable :sessions
 
 get ('/kryptera') do
     slim :kryptera
+
 end
 
 post ('/kryptera_post') do
     @data = params[:secret_one]
     session[:session_meddelande] = @data
     redirect('/kryptera')
+    puts session[:session_kryptera_img]
 
 end
 

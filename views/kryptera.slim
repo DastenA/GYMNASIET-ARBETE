@@ -8,8 +8,11 @@ section.section2
         form action="/kryptera_img" method="post" 
             input type="file" name="img_kryptera"
             input type="submit" value="Enter"/
-    section.section2_2
-        img src="/img/#{session[:session_kryptera_img]}" alt="yep"/
+    section.section2_2 
+        -   if session[:session_kryptera_img] == nil
+                img src="/img/bred.jpg" alt="bild" 
+        -   else
+               img src="/img/#{session[:session_kryptera_img]}" alt="bild"        
     section.section2_3
         form.form_down action="/kryptera_post" method="post" 
             input type="text" placeholder="Hemligt meddelanade..." name="secret_one"/
