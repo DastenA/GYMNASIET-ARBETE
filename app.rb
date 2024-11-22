@@ -1,7 +1,6 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'slim'
-require 'minimagick'
 enable :sessions
 
 #kryptera
