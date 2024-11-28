@@ -4,8 +4,6 @@ require 'slim'
 require 'rubygems'
 require 'rmagick'
 
-require 'rmagick'
-
 # Ladda bilden
 image = Magick::Image.read('vit.jpg').first
 
