@@ -1,260 +1,173 @@
-require 'sinatra'
-require 'sinatra/reloader'
-require 'slim'
-require 'rubygems'
-require 'rmagick'
-enable :sessions
+require 'sinatra' # Web application framework
+require 'sinatra/reloader' # Allows automatic reloading during development
+require 'slim' # Lightweight templating engine
+require 'rubygems' # Manages RubyGems dependencies
+require 'rmagick' # Library for image manipulation
+enable :sessions # Enables session management for storing user data
 
-
-#chat gpt
+# Converts a 2D array of pixels (RGB values) into an image and saves it as a file
 def from_pixels_to_image(pixels)
+  # Validate input: pixels must be a 2D array with each element being an array of [R, G, B]
+  unless pixels.is_a?(Array) && pixels.all? { |row| row.is_a?(Array) && row.all? { |p| p.is_a?(Array) && p.size == 3 } }
+    raise "Invalid pixel data format"
+  end
 
-    # Få bredd och höjd från pixel-arrayen
+  # Determine image dimensions
   height = pixels.length
   width = pixels[0].length
 
-  # Skapa en ny bild med rätt dimensioner
+  # Create a new blank image with the specified dimensions
   image = Magick::Image.new(width, height)
 
-  # Skapa en array för pixlar
+  # Flatten 2D pixel array into a 1D array of Magick::Pixel objects
   pixel_array = []
-
-  # Loopa genom varje rad och kolumn i pixel-arrayen
   pixels.each do |row|
-    row.each do |(r, g, b)|
-      # Konvertera 8-bitars RGB-värden till 16-bitars
+    row.each do |pixel|
+      r, g, b = pixel
+      # Convert 8-bit RGB values (0–255) to 16-bit (0–65535)
       pixel_array << Magick::Pixel.new(r * 257, g * 257, b * 257)
     end
   end
 
-  # Kontrollera att pixel-arrayen har rätt storlek
-  if pixel_array.size != width * height
-    raise "Pixel-arrayens storlek matchar inte bildens dimensioner!"
-  end
+  # Validate that the total number of pixels matches the image dimensions
+  raise "Pixel-arrayens storlek matchar inte bildens dimensioner!" if pixel_array.size != width * height
 
-  # Sätt pixlarna i bilden
+  # Apply the pixel data to the image
   image.store_pixels(0, 0, width, height, pixel_array)
 
-  # Validera resultat
-  exported_pixels = image.export_pixels(0, 0, width, height, "RGB")
-  puts "Exported pixels: #{exported_pixels.map { |v| v / 257 }.each_slice(3).to_a.inspect}"
+  # Debug: Log pixel data if debugging is enabled
+  if ENV['DEBUG']
+    exported_pixels = image.export_pixels(0, 0, width, height, "RGB")
+    puts "Exported pixels: #{exported_pixels.map { |v| v / 257 }.each_slice(3).to_a.inspect}"
+  end
 
-  # Skriv ut bilden till fil
-  image.write("/public/img/kryptera/output_#{session[:session_kryptera_img]}.jpg")
-  puts "Bilden har sparats som 'lol.jpg'."
+  # Save the image to a file in the specified directory
+  output_dir = "/path/to/public/img/kryptera"
+  FileUtils.mkdir_p(output_dir) unless Dir.exist?(output_dir) # Ensure the directory exists
+  output_file = "#{output_dir}/output_#{session[:session_kryptera_img] || 'default'}.jpg"
+  image.write(output_file)
+  puts "Bilden har sparats som '#{output_file}'."
 end
-  
 
+# Reads an image and returns its pixel data as a 2D array of RGB values
+def array_name_pixels_from_image(image_path)
+  image = Magick::Image.read(image_path).first # Load the image
 
-#chat gpt
-def array_name_pixels_from_image(bild)
-    p bild
-    image = Magick::Image.read(bild).first # Byt ut "image_path.jpg" mot bildens filväg
-
-    # Array för att lagra RGB-värden
-    rgb_values = []
-
-    # Iterera genom varje rad och pixel
-    image.rows.times do |y|
+  # Create a 2D array to store pixel RGB values
+  rgb_values = []
+  image.rows.times do |y|
     row = []
     image.columns.times do |x|
-        pixel = image.pixel_color(x, y)
-        # Hämta RGB-värden och normalisera till 0-255 (RMagick använder 16-bitars färgdjup)
-        r = (pixel.red / 257).to_i
-        g = (pixel.green / 257).to_i
-        b = (pixel.blue / 257).to_i
-        row << [r, g, b]
+      pixel = image.pixel_color(x, y)
+      # Convert 16-bit RGB values to 8-bit and store them
+      r = (pixel.red / 257).to_i
+      g = (pixel.green / 257).to_i
+      b = (pixel.blue / 257).to_i
+      row << [r, g, b]
     end
     rgb_values << row
-    end
+  end
 
-    # rgb_values innehåller nu alla RGB-värde
-    
-    return rgb_values
-
+  # Return the array of RGB values
+  rgb_values
 end
 
-#chat gpt
+# Converts binary pixel values to RGB (decimal) format
 def to_rgb(pixels)
-    rgb_pixels = pixels.map do |row|
-      row.map do |(r_bin, g_bin, b_bin)|
-        [
-          r_bin.to_i(2), # Konvertera från binärt till heltal för röd kanal
-          g_bin.to_i(2), # Konvertera från binärt till heltal för grön kanal
-          b_bin.to_i(2)  # Konvertera från binärt till heltal för blå kanal
-        ]
-      end
+  pixels.map do |row|
+    row.map do |(r_bin, g_bin, b_bin)|
+      [r_bin.to_i(2), g_bin.to_i(2), b_bin.to_i(2)] # Convert binary to integer
     end
-  
-    return rgb_pixels
+  end
 end
 
-#chat gpt
+# Converts RGB pixel values to binary format
 def to_binary(pixels)
-
-    binary_pixels = pixels.map do |row|
-        row.map do |(r, g, b)|
-          [
-            r.to_s(2).rjust(8, '0'), # Röd kanal i binärt
-            g.to_s(2).rjust(8, '0'), # Grön kanal i binärt
-            b.to_s(2).rjust(8, '0')  # Blå kanal i binärt
-          ]
-        end
+  pixels.map do |row|
+    row.map do |(r, g, b)|
+      [
+        r.to_s(2).rjust(8, '0'), # Convert to binary and pad to 8 bits
+        g.to_s(2).rjust(8, '0'),
+        b.to_s(2).rjust(8, '0')
+      ]
     end
-
-    return binary_pixels
-
+  end
 end
 
+# Converts a single character to its ASCII binary representation
 def ascii(element)
+  # Map the character to its binary ASCII value
+  case element
+  when "a".."z" then element.ord.to_s(2).rjust(8, '0') # Automatically handles lowercase a-z
+  else
+    raise "kan inte skriva #{element}" # Raise an error for unsupported characters
+  end
+end
 
-    new_element = 0
-    
-    case element
-    when "a"
-        new_element = "01100001"
-    when "b"
-        new_element = "01100010"
-    when "c"
-        new_element = "01100011"
-    when "d"
-        new_element = "01100100"
-    when "e"
-        new_element = "01100101"
-    when "f"
-        new_element = "01100110"
-    when "g"
-        new_element = "01100111"
-    when "h"
-        new_element = "01101000"
-    when "i"
-        new_element = "01101001"
-    when "j"
-        new_element = "01101010"
-    when "k"
-        new_element = "01101011"
-    when "l"
-        new_element = "01101100"
-    when "m"
-        new_element = "01101101"
-    when "n"
-        new_element = "01101110"
-    when "o"
-        new_element = "01101111"
-    when "p"
-        new_element = "01110000"
-    when "q"
-        new_element = "01110001"
-    when "r"
-        new_element = "01110010"
-    when "s"
-        new_element = "01110011"
-    when "t"
-        new_element = "01110100"
-    when "u"
-        new_element = "01110101"
-    when "v"
-        new_element = "01110110"
-    when "w"
-        new_element = "01110111"
-    when "x"
-        new_element = "01111000"
-    when "y"
-        new_element = "01111001"
-    when "z"
-        new_element = "01111010"
-    else
-        new_element = nil
-        raise "kan inte skriva #{element}"
+# Displays the form for encryption
+get('/kryptera') do
+  slim :kryptera
+end
+
+# Handles form submission for encryption
+post('/kryptera_post') do
+  # Array to store binary representation of input text
+  array_of_binary_from_text = []
+  data = params[:secret_one] # Retrieve user input
+  session[:session_meddelande] = data # Store input in session
+
+  # Load the selected image and convert it to a binary pixel array
+  pixel_array = array_name_pixels_from_image("/public/img/kryptera/#{session[:session_kryptera_img]}")
+  pixel_array = to_binary(pixel_array)
+
+  # Convert the input text to binary and store in array
+  data.each_char { |char| array_of_binary_from_text << ascii(char) }
+
+  # Embed binary data into the least significant bits of the image's pixel data
+  i, z, b = 0, 0, 0
+  bob = false
+  while i < array_of_binary_from_text.length
+    if [8, 5, 2].include?(array_of_binary_from_text[i].length)
+      if bob
+        z += 1
+        b = 0
+      end
+      bob = true
     end
 
+    # Modify the pixel's least significant bit with binary data
+    pixel_array[0][z][b][7] = array_of_binary_from_text[i][0]
+    array_of_binary_from_text[i].slice!(0)
+    i += 1 if array_of_binary_from_text[i].empty?
+    b += 1
+  end
+
+  # Convert the binary pixel array back to RGB format and save the image
+  pixel_arrayo = to_rgb(pixel_array)
+  from_pixels_to_image(pixel_arrayo)
+
+  redirect('/kryptera') # Redirect to the encryption page
 end
 
-get ('/kryptera') do
-    slim :kryptera
-
+# Sets the image to be used for encryption
+post('/kryptera_img') do
+  session[:session_kryptera_img] = params[:img_kryptera] # Store image name in session
+  redirect('/kryptera')
 end
 
-post ('/kryptera_post') do
-
-    array_of_bini_from_text = []
-
-    data = params[:secret_one]
-    session[:session_meddelande] = data
-
-    pixel_array = array_name_pixels_from_image("/public/img/kryptera/#{session[:session_kryptera_img]}")
-    p pixel_array[0]
-    pixel_array = to_binary(pixel_array)
-
-    i = 0
-    while i < data.length
-
-        bini = ascii(data[i])
-
-        array_of_bini_from_text << bini
-
-        i+=1
-    end
-
-    #------------------
-
-    i = 0
-    z = 0
-    b = 0
-    bob = false
-
-    while i < array_of_bini_from_text.length
-
-        if array_of_bini_from_text[i].length == 8 || array_of_bini_from_text[i].length == 5 || array_of_bini_from_text[i].length == 2 
-          
-            if bob == true
-                z += 1
-                b = 0  
-
-            end
-        end
-
-        bob = true
-
-        pixel_array[0][z][b][7] = array_of_bini_from_text[i][0] 
-        array_of_bini_from_text[i].slice!(0)
-
-                
-        if array_of_bini_from_text[i].length == 0
-            i +=1
-        end
-        b += 1
-    end
-
-    #------
-
-    pixel_arrayo = to_rgb(pixel_array)
-    from_pixels_to_image(pixel_arrayo)
-
-    redirect('/kryptera')
-
+# Displays the form for decryption
+get('/dekryptera') do
+  slim :dekryptera
 end
 
-post ('/kryptera_img') do
-    @data = params[:img_kryptera]
-    session[:session_kryptera_img] = @data
-    redirect('/kryptera')
+# Handles form submission for decryption (logic not provided)
+post('/dekryptera_post') do
+  session[:session_password] = params[:secret_two] # Store input in session
+  redirect('/dekryptera')
 end
 
-#dekryptera
-
-get ('/dekryptera') do
-    slim :dekryptera
-end
-
-post ('/dekryptera_post') do
-    @data= params[:secret_two]
-    session[:session_password] = @data
-    redirect('/dekryptera')
-end
-
-post ('/dekryptera_img') do
-    @data = params[:img_dekryptera]
-    session[:session_dekryptera_img] = @data
-    redirect('/dekryptera')
+# Sets the image to be used for decryption
+post('/dekryptera_img') do
+  session[:session_dekryptera_img] = params[:img_dekryptera] # Store image name in session
+  redirect('/dekryptera')
 end
