@@ -10,9 +10,6 @@ section.section2
             input type="file" name="img_kryptera"
             input type="submit" value="Enter"/
     section.section2_2 
-        -   if session[:session_kryptera_img] == nil
-                img src="/img/kryptera/bred.jpg" alt="bild" 
-        -   else
                img src="/img/kryptera/#{session[:session_kryptera_img]}" alt=""        
     section.section2_3
         form.form_down action="/kryptera_post" method="post" 
