@@ -388,7 +388,7 @@ end
 post ('/dekryptera_post') do
 
 
-    password = "Skibidi toilet"
+    password = "Amogus"
     session[:cor_password] = false
     @data= params[:secret_two]
     session[:session_password] = @data
