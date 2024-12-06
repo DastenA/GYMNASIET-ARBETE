@@ -1,5 +1,4 @@
 #flera rader. inte bara första raden som går att kryptera
-#00000000 = null/nill
 #raise
 
 require 'sinatra'
@@ -182,9 +181,8 @@ def ascii(element)
     when "Ä" then new_element = "11000100"
     when "Ö" then new_element = "11010110"
     when "|" then new_element = "01111100"
-
     else
-      raise "Kan inte skriva #{element}"
+        puts "Kan inte tolka #{element}"
     end
 
     return new_element
@@ -297,7 +295,7 @@ def ascii_revert(elemento)
     when "11000100" then element = "Ä"
     when "11010110" then element = "Ö"
     else
-      raise "Kan inte tolka #{elemento}"
+      puts "Kan inte tolka #{elemento}"
     end
   
     return element
@@ -388,7 +386,7 @@ end
 post ('/dekryptera_post') do
 
 
-    password = "Skibidi toilet"
+    password = "Amogus"
     session[:cor_password] = false
     @data= params[:secret_two]
     session[:session_password] = @data
