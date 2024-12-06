@@ -9,11 +9,10 @@ section.section2
             input type="file" name="img_dekryptera"
             input type="submit" value="Enter"/
     section.section2_2
-        -   if session[:session_dekryptera_img] == nil
-                img src="/img/dekryptera/krypterad_liten.png" alt="bild" 
-        -   else
-               img src="/img/dekryptera/#{session[:session_dekryptera_img]}" alt="bild"        
+            img src="/img/dekryptera/#{session[:session_dekryptera_img]}"   
     section.section2_3
         form.form_down action="/dekryptera_post" method="post" 
             input type="text" placeholder="Lösenord..." name="secret_two"/
             input type="submit" value="Enter"/
+            -if session[:cor_password] == true 
+                p Fel lösenord
