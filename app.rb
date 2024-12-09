@@ -49,7 +49,7 @@ def to_binary(pixels)
 end
 
 #ändrar på binära talen arrayen från det hemliga meddelandet som skrivits
-def arne(pixel_array,data)
+def arne(pixel_array, data)
 
     array_of_bini_from_text = []
     i = 0
@@ -94,6 +94,9 @@ def arne(pixel_array,data)
         b += 1
     
     end
+
+    return pixel_array
+
 end
 
 #från en binär array av start bilden till en rgb array
@@ -190,13 +193,15 @@ def hitta_meddelandet_from_binary_array(array)
     end
     result_message = ""
     i = 0
+
     while i < long_messege.length
 
         result_message << long_messege[i]
         i += 1
     end
-    p result_message
     session[:result_message] = result_message
+
+    return result_message
 
 end
 
@@ -319,7 +324,7 @@ end
 #när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen kör man denna funktion så man får fram ett meddelande. om ett binärt tal inte finns fungerar inte programet och det avbryts
 def ascii_revert(element)
 
-    element = nil
+    new_element = nil
   
     case element
     when "00100000" then new_element = " "
@@ -423,11 +428,9 @@ def ascii_revert(element)
     when "11000101" then new_element = "Å"
     when "11000100" then new_element = "Ä"
     when "11010110" then new_element = "Ö"
-    else
-      raise "Kan inte tolka #{element}"
     end
   
-    return element
+    return new_element
 
 end
 
@@ -451,7 +454,7 @@ post ('/kryptera_post') do
     pixel_array = to_binary(pixel_array)
 
     #ändar på binära arrayen
-    pixel_array = arne(pixel_array,data)
+    pixel_array = arne(pixel_array, data)
 
     #gör den ändrade binära arrayen till en rgb array
     pixel_array = to_rgb(pixel_array)
@@ -499,7 +502,12 @@ post ('/dekryptera_post') do
         #------------
 
         #läsa av alla sista nummer på alla binära tal pixlar för att hitta och skapa meddelandet. när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen printas detta ut i terminalen
-        p hitta_meddelandet_from_binary_array(array)
+        system('cls')
+        puts ""
+        puts ""        
+        puts hitta_meddelandet_from_binary_array(array)
+        puts ""
+        puts "" 
 
     #om lösenordet är fel ska det stå fel lösenord och man skickas direkt tillbaka till sidan
     else
