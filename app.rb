@@ -1,5 +1,4 @@
 #flera rader. inte bara första raden som går att kryptera
-#raise
 
 require 'sinatra'
 require 'sinatra/reloader'
@@ -8,22 +7,9 @@ require 'rubygems'
 require 'rmagick'
 enable :sessions
 
-def from_pixels_to_image(pixels)
+#--------------- Kryptera sidan
 
-    height = pixels.length
-    width = pixels[0].length
-  
-    image = Magick::Image.new(width, height)
-  
-    pixel_array = pixels.flatten(1).map do |(r, g, b)|
-      Magick::Pixel.new(r * 257, g * 257, b * 257) # Skala till 16-bitars
-    end
-  
-    image.store_pixels(0, 0, width, height, pixel_array)
-  
-    image.write("./public/img/dekryptera/krypterad_#{session[:session_kryptera_img_2]}.png")
-end
-  
+#Läsa av meddelande när man skriver in ett meddelande och returnerar en array av rgb värden från bilden
 def array_name_pixels_from_image(bild)
     image = Magick::Image.read(bild).first
 
@@ -45,20 +31,7 @@ def array_name_pixels_from_image(bild)
 
 end
 
-def to_rgb(pixels)
-    rgb_pixels = pixels.map do |row|
-      row.map do |(r_bin, g_bin, b_bin)|
-        [
-          r_bin.to_i(2),
-          g_bin.to_i(2), 
-          b_bin.to_i(2) 
-        ]
-      end
-    end
-  
-    return rgb_pixels
-end
-
+#från en rgb array av start bilden till en binär array
 def to_binary(pixels)
 
     binary_pixels = pixels.map do |row|
@@ -75,9 +48,162 @@ def to_binary(pixels)
 
 end
 
+#ändrar på binära talen arrayen från det hemliga meddelandet som skrivits
+def arne(pixel_array,data)
+
+    array_of_bini_from_text = []
+    i = 0
+    while i < data.length
+
+        bini = ascii(data[i])
+
+        array_of_bini_from_text << bini
+
+        i+=1
+    end
+
+    #------------------
+
+    i = 0
+    z = 0
+    b = 0
+    bob = false
+
+    while i < array_of_bini_from_text.length
+
+        if array_of_bini_from_text[i] == "01111100"
+            array_of_bini_from_text[i] = "00000000"
+        end
+
+        if array_of_bini_from_text[i].length == 8 || array_of_bini_from_text[i].length == 5 || array_of_bini_from_text[i].length == 2 
+            if bob == true
+                z += 1
+                b = 0  
+
+            end
+        end
+
+        bob = true
+
+        pixel_array[0][z][b][7] = array_of_bini_from_text[i][0] 
+        array_of_bini_from_text[i].slice!(0)
+    
+        if array_of_bini_from_text[i].length == 0
+            i +=1
+        end
+        b += 1
+    
+    end
+end
+
+#från en binär array av start bilden till en rgb array
+def to_rgb(pixels)
+    rgb_pixels = pixels.map do |row|
+      row.map do |(r_bin, g_bin, b_bin)|
+        [
+          r_bin.to_i(2),
+          g_bin.to_i(2), 
+          b_bin.to_i(2) 
+        ]
+      end
+    end
+  
+    return rgb_pixels
+end
+
+#skapar en bild av ändrade pixlar array och skriver ut en krypterad bild i dekryptera mappen 
+def from_pixels_to_image(pixels)
+
+    height = pixels.length
+    width = pixels[0].length
+  
+    image = Magick::Image.new(width, height)
+  
+    pixel_array = pixels.flatten(1).map do |(r, g, b)|
+      Magick::Pixel.new(r * 257, g * 257, b * 257) # Skala till 16-bitars
+    end
+  
+    image.store_pixels(0, 0, width, height, pixel_array)
+  
+    image.write("./public/img/dekryptera/krypterad_#{session[:session_kryptera_img_2]}.png")
+end
+
+#------------------------- Dekryptera sidan
+
+#läsa bilden på dekryptera sidan
+def read_image(image)
+    image = Magick::Image.read(image).first
+  
+    rgb_values = Array.new(image.rows) { Array.new(image.columns) }
+      
+    image.rows.times do |y|
+        image.columns.times do |x|
+        pixel = image.pixel_color(x, y)
+    
+        r = (pixel.red / 257).to_i
+        g = (pixel.green / 257).to_i
+        b = (pixel.blue / 257).to_i
+    
+        rgb_values[y][x] = [r, g, b]
+        end
+    end
+
+    return rgb_values
+
+end
+
+#Hitta meddelandet från en binär array
+def hitta_meddelandet_from_binary_array(array)
+    
+    x = 0
+    u = -1
+    long_messege = []
+
+    while x < array.length
+        messege = ""
+        j = 0
+        y = 0
+
+        while j < 8 
+            if j == 3 || j == 6 || j == 0
+                u += 1
+                y = 0
+            end
+            messege << array[0][u][y][7]
+            j +=1
+            y += 1
+        end
+
+        if messege == "00000000"
+            x = array.length
+        else
+            long_messege << messege
+            x += 1
+        end
+
+    end
+
+    i = 0
+    while i < long_messege.length
+        long_messege[i] = ascii_revert(long_messege[i])
+        i += 1
+    end
+    result_message = ""
+    i = 0
+    while i < long_messege.length
+
+        result_message << long_messege[i]
+        i += 1
+    end
+    p result_message
+    session[:result_message] = result_message
+
+end
+
+#ett tecken från det hemliga meddelandet görs om till binära tal. om ett tecken inte finns fungerar inte programet och det avbryts
 def ascii(element)
 
-    new_element = 0
+    new_element = nil
   
     case element
     when " " then new_element = "00100000"
@@ -189,286 +315,208 @@ def ascii(element)
 
 end
 
-def ascii_revert(elemento)
-    element = 0
+
+#när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen kör man denna funktion så man får fram ett meddelande. om ett binärt tal inte finns fungerar inte programet och det avbryts
+def ascii_revert(element)
+
+    element = nil
   
-    case elemento
-    when "00100000" then element = " "
-    when "00100001" then element = "!"
-    when "00100010" then element = "\""
-    when "00100011" then element = "#"
-    when "00100100" then element = "$"
-    when "00100101" then element = "%"
-    when "00100110" then element = "&"
-    when "00100111" then element = "'"
-    when "00101000" then element = "("
-    when "00101001" then element = ")"
-    when "00101010" then element = "*"
-    when "00101011" then element = "+"
-    when "00101100" then element = ","
-    when "00101101" then element = "-"
-    when "00101110" then element = "."
-    when "00101111" then element = "/"
-    when "00110000" then element = "0"
-    when "00110001" then element = "1"
-    when "00110010" then element = "2"
-    when "00110011" then element = "3"
-    when "00110100" then element = "4"
-    when "00110101" then element = "5"
-    when "00110110" then element = "6"
-    when "00110111" then element = "7"
-    when "00111000" then element = "8"
-    when "00111001" then element = "9"
-    when "00111010" then element = ":"
-    when "00111011" then element = ";"
-    when "00111100" then element = "<"
-    when "00111101" then element = "="
-    when "00111110" then element = ">"
-    when "00111111" then element = "?"
-    when "01000000" then element = "@"
-    when "01000001" then element = "A"
-    when "01000010" then element = "B"
-    when "01000011" then element = "C"
-    when "01000100" then element = "D"
-    when "01000101" then element = "E"
-    when "01000110" then element = "F"
-    when "01000111" then element = "G"
-    when "01001000" then element = "H"
-    when "01001001" then element = "I"
-    when "01001010" then element = "J"
-    when "01001011" then element = "K"
-    when "01001100" then element = "L"
-    when "01001101" then element = "M"
-    when "01001110" then element = "N"
-    when "01001111" then element = "O"
-    when "01010000" then element = "P"
-    when "01010001" then element = "Q"
-    when "01010010" then element = "R"
-    when "01010011" then element = "S"
-    when "01010100" then element = "T"
-    when "01010101" then element = "U"
-    when "01010110" then element = "V"
-    when "01010111" then element = "W"
-    when "01011000" then element = "X"
-    when "01011001" then element = "Y"
-    when "01011010" then element = "Z"
-    when "01011011" then element = "["
-    when "01011100" then element = "\\"
-    when "01011101" then element = "]"
-    when "01011110" then element = "^"
-    when "01011111" then element = "_"
-    when "01100000" then element = "`"
-    when "01100001" then element = "a"
-    when "01100010" then element = "b"
-    when "01100011" then element = "c"
-    when "01100100" then element = "d"
-    when "01100101" then element = "e"
-    when "01100110" then element = "f"
-    when "01100111" then element = "g"
-    when "01101000" then element = "h"
-    when "01101001" then element = "i"
-    when "01101010" then element = "j"
-    when "01101011" then element = "k"
-    when "01101100" then element = "l"
-    when "01101101" then element = "m"
-    when "01101110" then element = "n"
-    when "01101111" then element = "o"
-    when "01110000" then element = "p"
-    when "01110001" then element = "q"
-    when "01110010" then element = "r"
-    when "01110011" then element = "s"
-    when "01110100" then element = "t"
-    when "01110101" then element = "u"
-    when "01110110" then element = "v"
-    when "01110111" then element = "w"
-    when "01111000" then element = "x"
-    when "01111001" then element = "y"
-    when "01111010" then element = "z"
-    when "01111011" then element = "{"
-    when "01111100" then element = "|"
-    when "01111101" then element = "}"
-    when "01111110" then element = "~"
-    when "11100101" then element = "å"
-    when "11100100" then element = "ä"
-    when "11110110" then element = "ö"
-    when "11000101" then element = "Å"
-    when "11000100" then element = "Ä"
-    when "11010110" then element = "Ö"
+    case element
+    when "00100000" then new_element = " "
+    when "00100001" then new_element = "!"
+    when "00100010" then new_element = "\""
+    when "00100011" then new_element = "#"
+    when "00100100" then new_element = "$"
+    when "00100101" then new_element = "%"
+    when "00100110" then new_element = "&"
+    when "00100111" then new_element = "'"
+    when "00101000" then new_element = "("
+    when "00101001" then new_element = ")"
+    when "00101010" then new_element = "*"
+    when "00101011" then new_element = "+"
+    when "00101100" then new_element = ","
+    when "00101101" then new_element = "-"
+    when "00101110" then new_element = "."
+    when "00101111" then new_element = "/"
+    when "00110000" then new_element = "0"
+    when "00110001" then new_element = "1"
+    when "00110010" then new_element = "2"
+    when "00110011" then new_element = "3"
+    when "00110100" then new_element = "4"
+    when "00110101" then new_element = "5"
+    when "00110110" then new_element = "6"
+    when "00110111" then new_element = "7"
+    when "00111000" then new_element = "8"
+    when "00111001" then new_element = "9"
+    when "00111010" then new_element = ":"
+    when "00111011" then new_element = ";"
+    when "00111100" then new_element = "<"
+    when "00111101" then new_element = "="
+    when "00111110" then new_element = ">"
+    when "00111111" then new_element = "?"
+    when "01000000" then new_element = "@"
+    when "01000001" then new_element = "A"
+    when "01000010" then new_element = "B"
+    when "01000011" then new_element = "C"
+    when "01000100" then new_element = "D"
+    when "01000101" then new_element = "E"
+    when "01000110" then new_element = "F"
+    when "01000111" then new_element = "G"
+    when "01001000" then new_element = "H"
+    when "01001001" then new_element = "I"
+    when "01001010" then new_element = "J"
+    when "01001011" then new_element = "K"
+    when "01001100" then new_element = "L"
+    when "01001101" then new_element = "M"
+    when "01001110" then new_element = "N"
+    when "01001111" then new_element = "O"
+    when "01010000" then new_element = "P"
+    when "01010001" then new_element = "Q"
+    when "01010010" then new_element = "R"
+    when "01010011" then new_element = "S"
+    when "01010100" then new_element = "T"
+    when "01010101" then new_element = "U"
+    when "01010110" then new_element = "V"
+    when "01010111" then new_element = "W"
+    when "01011000" then new_element = "X"
+    when "01011001" then new_element = "Y"
+    when "01011010" then new_element = "Z"
+    when "01011011" then new_element = "["
+    when "01011100" then new_element = "\\"
+    when "01011101" then new_element = "]"
+    when "01011110" then new_element = "^"
+    when "01011111" then new_element = "_"
+    when "01100000" then new_element = "`"
+    when "01100001" then new_element = "a"
+    when "01100010" then new_element = "b"
+    when "01100011" then new_element = "c"
+    when "01100100" then new_element = "d"
+    when "01100101" then new_element = "e"
+    when "01100110" then new_element = "f"
+    when "01100111" then new_element = "g"
+    when "01101000" then new_element = "h"
+    when "01101001" then new_element = "i"
+    when "01101010" then new_element = "j"
+    when "01101011" then new_element = "k"
+    when "01101100" then new_element = "l"
+    when "01101101" then new_element = "m"
+    when "01101110" then new_element = "n"
+    when "01101111" then new_element = "o"
+    when "01110000" then new_element = "p"
+    when "01110001" then new_element = "q"
+    when "01110010" then new_element = "r"
+    when "01110011" then new_element = "s"
+    when "01110100" then new_element = "t"
+    when "01110101" then new_element = "u"
+    when "01110110" then new_element = "v"
+    when "01110111" then new_element = "w"
+    when "01111000" then new_element = "x"
+    when "01111001" then new_element = "y"
+    when "01111010" then new_element = "z"
+    when "01111011" then new_element = "{"
+    when "01111100" then new_element = "|"
+    when "01111101" then new_element = "}"
+    when "01111110" then new_element = "~"
+    when "11100101" then new_element = "å"
+    when "11100100" then new_element = "ä"
+    when "11110110" then new_element = "ö"
+    when "11000101" then new_element = "Å"
+    when "11000100" then new_element = "Ä"
+    when "11010110" then new_element = "Ö"
     else
-      puts "Kan inte tolka #{elemento}"
+      raise "Kan inte tolka #{element}"
     end
   
     return element
-  end
 
+end
+
+#Kryptera sidan
 get ('/kryptera') do
     slim :kryptera
 end
 
+#Om man skriver ett meddelande på kryptera sidan och klickar på enter
 post ('/kryptera_post') do
 
-    array_of_bini_from_text = []
+    data = params[:secret_one]#sparar det hemliga meddelandet i data
+    session[:session_meddelande] = data#spara i session
 
-    data = params[:secret_one]
-    session[:session_meddelande] = data
+    data = data + "|"#lägger till tecknet | på det hemlig medelandet. detta görs för att denna görs till inära tal och sen göra den om till det binära talet "00000000" detta är värdet nil. då vet man när man dekrypterar medelandet att meddeladnet är slut. varför tecknet | är för att ingen avändet |
 
-    data = data + "|"
-
+    #hittar bilden man valde och gör en rgb array av den
     pixel_array = array_name_pixels_from_image("./public/img/kryptera/#{session[:session_kryptera_img]}")
+
+    #gör om denna array till binära tal
     pixel_array = to_binary(pixel_array)
 
-    i = 0
-    while i < data.length
+    #ändar på binära arrayen
+    pixel_array = arne(pixel_array,data)
 
-        bini = ascii(data[i])
+    #gör den ändrade binära arrayen till en rgb array
+    pixel_array = to_rgb(pixel_array)
 
-        array_of_bini_from_text << bini
-
-        i+=1
-    end
-
-    #------------------
-
-    i = 0
-    z = 0
-    b = 0
-    bob = false
-
-    while i < array_of_bini_from_text.length
-
-        if array_of_bini_from_text[i] == "01111100"
-            array_of_bini_from_text[i] = "00000000"
-        end
-
-        if array_of_bini_from_text[i].length == 8 || array_of_bini_from_text[i].length == 5 || array_of_bini_from_text[i].length == 2 
-            if bob == true
-                z += 1
-                b = 0  
-
-            end
-        end
-
-        bob = true
-
-        pixel_array[0][z][b][7] = array_of_bini_from_text[i][0] 
-        array_of_bini_from_text[i].slice!(0)
-    
-        if array_of_bini_from_text[i].length == 0
-            i +=1
-        end
-        b += 1
-    
-    end
-
-    #------
-
-    pixel_arrayo = to_rgb(pixel_array)
-    from_pixels_to_image(pixel_arrayo)
+    #skapar en bild av denna ändrade rgb array
+    from_pixels_to_image(pixel_array)
 
     redirect('/kryptera')
 
 end
 
+#Om man byter bild på kryptera sidan och sedan klickar på enter
 post ('/kryptera_img') do
-    @data = params[:img_kryptera]
-    session[:session_kryptera_img] = @data
-    session[:session_kryptera_img_2] = @data[0...-4]
+
+    @data = params[:img_kryptera]#en string av filvägen till den bild man väljer
+    session[:session_kryptera_img] = @data#sparar i session
+    session[:session_kryptera_img_2] = @data[0...-4]#tar bort de sista 4 sista teckten från filvägen. alltså antingen .jpg eller .png. detta för att kunna spara bilden som en png från en jpg
+    
     redirect('/kryptera')
 
 end
 
-#dekryptera
-
+#Dekryptera sidan
 get ('/dekryptera') do
     slim :dekryptera
 end
 
+#Om man skriver lösenordet på dekryptera sidan och sedan klickar på enter
 post ('/dekryptera_post') do
 
+    password = "Amogus"#Lösenordet för att kunna dekryptera sidan
+    session[:cor_password] = false #sätter en varibel till false. den görs til true om lösenordet är fel och det står fel lösenord
+    @data= params[:secret_two]#hämtar en string av de använderen skriver in som lösenord
+    session[:session_password] = @data #sparar till en session
 
-    password = "Amogus"
-    session[:cor_password] = false
-    @data= params[:secret_two]
-    session[:session_password] = @data
-
+    #om lösenordet är rätt ska man hitta meddelandet i bilden
     if @data == password
 
-        image = Magick::Image.read("./public/img/dekryptera/#{session[:session_dekryptera_img]}").first
-  
-        rgb_values = Array.new(image.rows) { Array.new(image.columns) }
+        #läsa in bilden till rgb värden till mallus_array
+        array = read_image("./public/img/dekryptera/#{session[:session_dekryptera_img]}")
       
-        image.rows.times do |y|
-          image.columns.times do |x|
-            pixel = image.pixel_color(x, y)
-      
-            r = (pixel.red / 257).to_i
-            g = (pixel.green / 257).to_i
-            b = (pixel.blue / 257).to_i
-      
-            rgb_values[y][x] = [r, g, b]
-          end
-        end
-      
-        #-----------
+        #mallus arrayen med rgb görs om till binära tal iställer för rgb värden
+        array = to_binary(array)
 
-        mallus_array = to_binary(rgb_values)
+        #------------
 
-        #-----------
+        #läsa av alla sista nummer på alla binära tal pixlar för att hitta och skapa meddelandet. när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen printas detta ut i terminalen
+        p hitta_meddelandet_from_binary_array(array)
 
-        x = 0
-        u = -1
-        long_messege = []
-
-        while x < mallus_array.length
-            messege = ""
-            j = 0
-            y = 0
-
-            while j < 8 
-                if j == 3 || j == 6 || j == 0
-                    u += 1
-                    y = 0
-                end
-                messege << mallus_array[0][u][y][7]
-                j +=1
-                y += 1
-            end
-
-            if messege == "00000000"
-                x = mallus_array.length
-            else
-                long_messege << messege
-                x += 1
-            end
-
-        end
-
-        i = 0
-        while i < long_messege.length
-            long_messege[i] = ascii_revert(long_messege[i])
-            i += 1
-        end
-        result_message = ""
-        i = 0
-        while i < long_messege.length
-
-            result_message << long_messege[i]
-            i += 1
-        end
-        p result_message
-        session[:result_message] = result_message
-
+    #om lösenordet är fel ska det stå fel lösenord och man skickas direkt tillbaka till sidan
     else
         session[:cor_password] = true
         redirect('/dekryptera')
     end
     
     redirect('/dekryptera')
+
 end
 
+#Om man väljer bild på dekryptera sidan och seden klickar på enter
 post ('/dekryptera_img') do
-    @data = params[:img_dekryptera]
-    session[:session_dekryptera_img] = @data
-    session[:session_dekryptera_img_2] = @data[0...-4]
+
+    @data = params[:img_dekryptera]#en string av filvägen till den bild man väljer
+    session[:session_dekryptera_img] = @data#sparar i session
+
     redirect('/dekryptera')
+
 end
