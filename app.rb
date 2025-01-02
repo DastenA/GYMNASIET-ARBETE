@@ -48,6 +48,18 @@ def to_binary(pixels)
 
 end
 
+def arbirr(i)
+
+    boboo = ""
+
+    while i < 10000
+        boboo << "a"
+    end
+
+    return boboo
+
+end
+
 #ändrar på binära talen arrayen från det hemliga meddelandet som skrivits
 def arne(pixel_array, data, bred, hog)
 
@@ -68,7 +80,7 @@ def arne(pixel_array, data, bred, hog)
     z = 0
     b = 0
     a = 0
-    p = 7
+    k = 7
     bob = false
 
     while i < array_of_bini_from_text.length
@@ -88,8 +100,12 @@ def arne(pixel_array, data, bred, hog)
 
                 if a - 1 == hog
 
-                    p -=1
+                    k -=1
                     a = 0
+
+                    if k < 0
+                        raise "för långt meddelande"
+                    end
 
                 end
             end
@@ -105,7 +121,7 @@ def arne(pixel_array, data, bred, hog)
 
         bob = true
 
-        pixel_array[a][z][b][p] = array_of_bini_from_text[i][0] 
+        pixel_array[a][z][b][k] = array_of_bini_from_text[i][0] 
         array_of_bini_from_text[i].slice!(0)
     
         if array_of_bini_from_text[i].length == 0
@@ -464,6 +480,7 @@ post ('/kryptera_post') do
     data = params[:secret_one]#sparar det hemliga meddelandet i data
     session[:session_meddelande] = data#spara i session
 
+    data = arbirr(0)
     data = data + "|"#lägger till tecknet | på det hemlig medelandet. detta görs för att denna görs till inära tal och sen göra den om till det binära talet "00000000" detta är värdet nil. då vet man när man dekrypterar medelandet att meddeladnet är slut. varför tecknet | är för att ingen avändet |
 
     #hittar bilden man valde och gör en rgb array av den
@@ -477,7 +494,6 @@ post ('/kryptera_post') do
 
     hog = pixel_array.length
     hog = ((hog) - 1)
-
 
     #ändar på binära arrayen
     pixel_array = arne(pixel_array, data, bred, hog)
