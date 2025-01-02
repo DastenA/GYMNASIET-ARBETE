@@ -1,5 +1,3 @@
-#flera rader. inte bara första raden som går att kryptera
-
 require 'sinatra'
 require 'sinatra/reloader'
 require 'slim'
@@ -9,7 +7,6 @@ enable :sessions
 
 #--------------- Kryptera sidan
 
-#Läsa av meddelande när man skriver in ett meddelande och returnerar en array av rgb värden från bilden
 def array_name_pixels_from_image(bild)
     image = Magick::Image.read(bild).first
 
@@ -31,7 +28,6 @@ def array_name_pixels_from_image(bild)
 
 end
 
-#från en rgb array av start bilden till en binär array
 def to_binary(pixels)
 
     binary_pixels = pixels.map do |row|
@@ -48,19 +44,6 @@ def to_binary(pixels)
 
 end
 
-def arbirr(i)
-
-    boboo = ""
-
-    while i < 10000
-        boboo << "a"
-    end
-
-    return boboo
-
-end
-
-#ändrar på binära talen arrayen från det hemliga meddelandet som skrivits
 def arne(pixel_array, data, bred, hog)
 
     array_of_bini_from_text = []
@@ -135,7 +118,6 @@ def arne(pixel_array, data, bred, hog)
 
 end
 
-#från en binär array av start bilden till en rgb array
 def to_rgb(pixels)
     rgb_pixels = pixels.map do |row|
       row.map do |(r_bin, g_bin, b_bin)|
@@ -150,7 +132,6 @@ def to_rgb(pixels)
     return rgb_pixels
 end
 
-#skapar en bild av ändrade pixlar array och skriver ut en krypterad bild i dekryptera mappen 
 def from_pixels_to_image(pixels)
 
     height = pixels.length
@@ -159,7 +140,7 @@ def from_pixels_to_image(pixels)
     image = Magick::Image.new(width, height)
   
     pixel_array = pixels.flatten(1).map do |(r, g, b)|
-      Magick::Pixel.new(r * 257, g * 257, b * 257) # Skala till 16-bitars
+      Magick::Pixel.new(r * 257, g * 257, b * 257)
     end
   
     image.store_pixels(0, 0, width, height, pixel_array)
@@ -169,7 +150,6 @@ end
 
 #------------------------- Dekryptera sidan
 
-#läsa bilden på dekryptera sidan
 def read_image(image)
     image = Magick::Image.read(image).first
   
@@ -191,7 +171,6 @@ def read_image(image)
 
 end
 
-#Hitta meddelandet från en binär array
 def hitta_meddelandet_from_binary_array(array)
     
     x = 0
@@ -241,7 +220,6 @@ def hitta_meddelandet_from_binary_array(array)
 
 end
 
-#ett tecken från det hemliga meddelandet görs om till binära tal. om ett tecken inte finns fungerar inte programet och det avbryts
 def ascii(element)
 
     new_element = nil
@@ -356,7 +334,6 @@ def ascii(element)
 
 end
 
-#När man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen kör man denna funktion så man får fram ett meddelande. om ett binärt tal inte finns fungerar inte programet och det avbryts
 def ascii_revert(element)
 
     new_element = nil
@@ -469,24 +446,19 @@ def ascii_revert(element)
 
 end
 
-#Kryptera sidan
 get ('/kryptera') do
     slim :kryptera
 end
 
-#Om man skriver ett meddelande på kryptera sidan och klickar på enter
 post ('/kryptera_post') do
 
-    data = params[:secret_one]#sparar det hemliga meddelandet i data
-    session[:session_meddelande] = data#spara i session
+    data = params[:secret_one]
+    session[:session_meddelande] = data
 
-    data = arbirr(0)
-    data = data + "|"#lägger till tecknet | på det hemlig medelandet. detta görs för att denna görs till inära tal och sen göra den om till det binära talet "00000000" detta är värdet nil. då vet man när man dekrypterar medelandet att meddeladnet är slut. varför tecknet | är för att ingen avändet |
+    data = data + "|"
 
-    #hittar bilden man valde och gör en rgb array av den
     pixel_array = array_name_pixels_from_image("./public/img/kryptera/#{session[:session_kryptera_img]}")
 
-    #gör om denna array till binära tal
     pixel_array = to_binary(pixel_array)
     
     bred = pixel_array[0].length
@@ -495,55 +467,43 @@ post ('/kryptera_post') do
     hog = pixel_array.length
     hog = ((hog) - 1)
 
-    #ändar på binära arrayen
     pixel_array = arne(pixel_array, data, bred, hog)
 
-    #gör den ändrade binära arrayen till en rgb array
     pixel_array = to_rgb(pixel_array)
 
-    #skapar en bild av denna ändrade rgb array
     from_pixels_to_image(pixel_array)
 
     redirect('/kryptera')
 
 end
 
-#Om man byter bild på kryptera sidan och sedan klickar på enter
 post ('/kryptera_img') do
 
-    @data = params[:img_kryptera]#en string av filvägen till den bild man väljer
-    session[:session_kryptera_img] = @data#sparar i session
-    session[:session_kryptera_img_2] = @data[0...-4]#tar bort de sista 4 sista teckten från filvägen. alltså antingen .jpg eller .png. detta för att kunna spara bilden som en png från en jpg
+    @data = params[:img_kryptera]
+    session[:session_kryptera_img] = @data
+    session[:session_kryptera_img_2] = @data[0...-4]
     
     redirect('/kryptera')
 
 end
 
-#Dekryptera sidan
 get ('/dekryptera') do
     slim :dekryptera
 end
 
-#Om man skriver lösenordet på dekryptera sidan och sedan klickar på enter
 post ('/dekryptera_post') do
 
-    password = "Amogus"#Lösenordet för att kunna dekryptera sidan
-    session[:cor_password] = false #sätter en varibel till false. den görs til true om lösenordet är fel och det står fel lösenord
-    @data= params[:secret_two]#hämtar en string av de använderen skriver in som lösenord
-    session[:session_password] = @data #sparar till en session
+    password = "Amogus"
+    session[:cor_password] = false 
+    @data= params[:secret_two]
+    session[:session_password] = @data
 
-    #om lösenordet är rätt ska man hitta meddelandet i bilden
     if @data == password
 
-        #läsa in bilden till rgb värden till mallus_array
         array = read_image("./public/img/dekryptera/#{session[:session_dekryptera_img]}")
       
-        #mallus arrayen med rgb görs om till binära tal iställer för rgb värden
         array = to_binary(array)
 
-        #------------
-
-        #läsa av alla sista nummer på alla binära tal pixlar för att hitta och skapa meddelandet. när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen printas detta ut i terminalen
         system('cls')
         puts ""
         puts ""        
@@ -551,7 +511,6 @@ post ('/dekryptera_post') do
         puts ""
         puts "" 
 
-    #om lösenordet är fel ska det stå fel lösenord och man skickas direkt tillbaka till sidan
     else
         session[:cor_password] = true
         redirect('/dekryptera')
@@ -561,11 +520,10 @@ post ('/dekryptera_post') do
 
 end
 
-#Om man väljer bild på dekryptera sidan och seden klickar på enter
 post ('/dekryptera_img') do
 
-    @data = params[:img_dekryptera]#en string av filvägen till den bild man väljer
-    session[:session_dekryptera_img] = @data#sparar i session
+    @data = params[:img_dekryptera]
+    session[:session_dekryptera_img] = @data
 
     redirect('/dekryptera')
 
