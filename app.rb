@@ -49,7 +49,7 @@ def to_binary(pixels)
 end
 
 #ändrar på binära talen arrayen från det hemliga meddelandet som skrivits
-def arne(pixel_array, data)
+def arne(pixel_array, data, bred, hog)
 
     array_of_bini_from_text = []
     i = 0
@@ -67,12 +67,32 @@ def arne(pixel_array, data)
     i = 0
     z = 0
     b = 0
+    a = 0
+    p = 7
     bob = false
 
     while i < array_of_bini_from_text.length
 
         if array_of_bini_from_text[i] == "01111100"
             array_of_bini_from_text[i] = "00000000"
+        end
+
+        if z == bred || z == (bred - 1)
+
+            if array_of_bini_from_text[i].length == 8 
+
+                z = 0
+                a += 1 
+                b = 0
+                bob = false
+
+                if a - 1 == hog
+
+                    p -=1
+                    a = 0
+
+                end
+            end
         end
 
         if array_of_bini_from_text[i].length == 8 || array_of_bini_from_text[i].length == 5 || array_of_bini_from_text[i].length == 2 
@@ -85,7 +105,7 @@ def arne(pixel_array, data)
 
         bob = true
 
-        pixel_array[0][z][b][7] = array_of_bini_from_text[i][0] 
+        pixel_array[a][z][b][p] = array_of_bini_from_text[i][0] 
         array_of_bini_from_text[i].slice!(0)
     
         if array_of_bini_from_text[i].length == 0
@@ -313,15 +333,14 @@ def ascii(element)
     when "Ö" then new_element = "11010110"
     when "|" then new_element = "01111100"
     else
-        puts "Kan inte tolka #{element}"
+        raise "Kan inte tolka #{element}"
     end
 
     return new_element
 
 end
 
-
-#när man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen kör man denna funktion så man får fram ett meddelande. om ett binärt tal inte finns fungerar inte programet och det avbryts
+#När man har en stor array med massa rgb värden som gjorts till binära tal tar man de sista nummrarna i varje binära tal och adderar ihop tills man får 8 tal. sen kör man denna funktion så man får fram ett meddelande. om ett binärt tal inte finns fungerar inte programet och det avbryts
 def ascii_revert(element)
 
     new_element = nil
@@ -452,9 +471,16 @@ post ('/kryptera_post') do
 
     #gör om denna array till binära tal
     pixel_array = to_binary(pixel_array)
+    
+    bred = pixel_array[0].length
+    bred = ((bred) - 1)
+
+    hog = pixel_array.length
+    hog = ((hog) - 1)
+
 
     #ändar på binära arrayen
-    pixel_array = arne(pixel_array, data)
+    pixel_array = arne(pixel_array, data, bred, hog)
 
     #gör den ändrade binära arrayen till en rgb array
     pixel_array = to_rgb(pixel_array)
