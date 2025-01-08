@@ -81,7 +81,7 @@ def arne(pixel_array, data, bred, hog)
                 b = 0
                 bob = false
 
-                if a - 1 == hog
+                if (a - 1) == hog
 
                     k -=1
                     a = 0
@@ -171,47 +171,79 @@ def read_image(image)
 
 end
 
-def hitta_meddelandet_from_binary_array(array)
-    
-    x = 0
-    u = -1
-    long_messege = []
+def hitta_meddelandet_from_binary_array(array,bred,hog)
 
-    while x < array.length
+    stop = false
+    x = 0
+    u = 0
+    b = 7
+    k = 0
+    bob = false
+
+    long_message = []
+
+    while b != nil
+
         messege = ""
         j = 0
         y = 0
+        if u == bred || u == (bred - 1)
 
-        while j < 8 
-            if j == 3 || j == 6 || j == 0
-                u += 1
-                y = 0
+            k += 1
+
+            if k == (hog + 1)
+
+                k = 0
+
+                b -= 1
+
+                if b == (-1)
+                    b = nil
+                end
+
             end
-            messege << array[0][u][y][7]
-            j +=1
-            y += 1
+
+            u = 0
+            bob = false
+
         end
 
-        if messege == "00000000"
-            x = array.length
-        else
-            long_messege << messege
-            x += 1
+        if b != nil
+
+            while j < 8 
+                if j == 3 || j == 6 || j == 0
+                    if bob == true
+
+                        u += 1
+                        y = 0
+                    end
+                end
+                bob = true
+        
+                messege << array[k][u][y][b]
+                j +=1
+                y += 1
+            end
+            if messege == "00000000"
+                b = nil
+            else
+                long_message << messege
+            end
         end
 
     end
 
     i = 0
-    while i < long_messege.length
-        long_messege[i] = ascii_revert(long_messege[i])
+    while i < long_message.length
+        long_message[i] = ascii_revert(long_message[i])
         i += 1
     end
     result_message = ""
     i = 0
 
-    while i < long_messege.length
 
-        result_message << long_messege[i]
+    while i < long_message.length
+        result_message << long_message[i]
         i += 1
     end
     session[:result_message] = result_message
@@ -504,10 +536,16 @@ post ('/dekryptera_post') do
       
         array = to_binary(array)
 
+        bred = array[0].length
+        bred = ((bred) - 1)
+    
+        hog = array.length
+        hog = ((hog) - 1)
+
         system('cls')
         puts ""
         puts ""        
-        puts hitta_meddelandet_from_binary_array(array)
+        puts hitta_meddelandet_from_binary_array(array,bred,hog)
         puts ""
         puts "" 
 
