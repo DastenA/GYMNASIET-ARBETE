@@ -5,7 +5,34 @@ require 'rubygems'
 require 'rmagick'
 enable :sessions
 
-#--------------- Kryptera sidan
+def generate_random_characters(x)
+
+    random_characters = []
+
+    characters = [
+      " ", "!", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", 
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", 
+      "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", 
+      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "]", "^", "_", "`", 
+      "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", 
+      "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "}", "~", "€", "ƒ", "„", 
+      "…", "†", "‡", "‰", "Š", "Œ", "Ž", "“", "”", "•", "—", "™", "š", "œ", "ž", "Ÿ", 
+      "¡", "¢", "£", "¤", "¥", "¦", "§", "¨", "©", "ª", "«", "¬", "®", "¯", "°", "±", 
+      "²", "³", "µ", "¶", "·", "¹", "º", "»", "¼", "½", "¾", "¿", "À", "Á", "Â", "Ã", 
+      "Ä", "Å", "Æ", "Ç", "È", "É", "Ê", "Ë", "Ì", "Í", "Î", "Ï", "Ð", "Ñ", "Ò", "Ó", 
+      "Ô", "Õ", "Ö", "Ø", "Ù", "Ú", "Û", "Ü", "Ý", "Þ", "ß", "à", "á", "â", "ã", "ä", 
+      "å", "æ", "ç", "è", "é", "ê", "ë", "ì", "í", "î", "ï", "ð", "ñ", "ò", "ó", "ô", 
+      "õ", "ö", "÷", "ø", "ù", "ú", "û", "ü", "ý", "þ", "ÿ"
+    ]
+  
+    x.times do
+      random_characters << characters.sample
+    end
+  
+    return random_characters.join
+end
+
+#------------------------ Kryptera sidan
 
 def array_name_pixels_from_image(bild)
     image = Magick::Image.read(bild).first
@@ -46,6 +73,12 @@ end
 
 def arne(pixel_array, data, bred, hog)
 
+    varv = 1
+
+    puts ""
+    puts "varv #{varv}"
+    puts ""
+
     array_of_bini_from_text = []
     i = 0
     while i < data.length
@@ -53,7 +86,6 @@ def arne(pixel_array, data, bred, hog)
         bini = ascii(data[i])
 
         array_of_bini_from_text << bini
-
         i+=1
     end
 
@@ -86,9 +118,15 @@ def arne(pixel_array, data, bred, hog)
                     k -=1
                     a = 0
 
+                    varv += 1
+
                     if k < 0
                         raise "för långt meddelande"
                     end
+                    
+                    puts ""
+                    puts "varv #{varv}"
+                    puts ""
 
                 end
             end
@@ -148,7 +186,7 @@ def from_pixels_to_image(pixels)
     image.write("./public/img/dekryptera/krypterad_#{session[:session_kryptera_img_2]}.png")
 end
 
-#------------------------- Dekryptera sidan
+#------------------------ Dekryptera sidan
 
 def read_image(image)
     image = Magick::Image.read(image).first
@@ -257,10 +295,9 @@ def ascii(element)
     new_element = nil
   
     case element
+    when "#" then new_element = "00100011"
     when " " then new_element = "00100000"
     when "!" then new_element = "00100001"
-    when "\"" then new_element = "00100010"
-    when "#" then new_element = "00100011"
     when "$" then new_element = "00100100"
     when "%" then new_element = "00100101"
     when "&" then new_element = "00100110"
@@ -317,7 +354,6 @@ def ascii(element)
     when "Y" then new_element = "01011001"
     when "Z" then new_element = "01011010"
     when "[" then new_element = "01011011"
-    when "\\" then new_element = "01011100"
     when "]" then new_element = "01011101"
     when "^" then new_element = "01011110"
     when "_" then new_element = "01011111"
@@ -351,13 +387,120 @@ def ascii(element)
     when "{" then new_element = "01111011"
     when "}" then new_element = "01111101"
     when "~" then new_element = "01111110"
-    when "å" then new_element = "11100101"
-    when "ä" then new_element = "11100100"
-    when "ö" then new_element = "11110110"
-    when "Å" then new_element = "11000101"
+    when "€" then new_element = "10000000"
+    when "ƒ" then new_element = "10000011"
+    when "„" then new_element = "10000100"
+    when "…" then new_element = "10000101"
+    when "†" then new_element = "10000110"
+    when "‡" then new_element = "10000111"
+    when "‰" then new_element = "10001001"
+    when "Š" then new_element = "10001010"
+    when "Œ" then new_element = "10001100"
+    when "Ž" then new_element = "10001110"
+    when "“" then new_element = "10010011"
+    when "”" then new_element = "10010100"
+    when "•" then new_element = "10010101"
+    when "—" then new_element = "10010111"
+    when "™" then new_element = "10011001"
+    when "š" then new_element = "10011010"
+    when "œ" then new_element = "10011100"
+    when "ž" then new_element = "10011110"
+    when "Ÿ" then new_element = "10011111"
+    when "¡" then new_element = "10100001"
+    when "¢" then new_element = "10100010"
+    when "£" then new_element = "10100011"
+    when "¤" then new_element = "10100100"
+    when "¥" then new_element = "10100101"
+    when "¦" then new_element = "10100110"
+    when "§" then new_element = "10100111"
+    when "¨" then new_element = "10101000"
+    when "©" then new_element = "10101001"
+    when "ª" then new_element = "10101010"
+    when "«" then new_element = "10101011"
+    when "¬" then new_element = "10101100"
+    when "®" then new_element = "10101110"
+    when "¯" then new_element = "10101111"
+    when "°" then new_element = "10110000"
+    when "±" then new_element = "10110001"
+    when "²" then new_element = "10110010"
+    when "³" then new_element = "10110011"
+    when "µ" then new_element = "10110101"
+    when "¶" then new_element = "10110110"
+    when "·" then new_element = "10110111"
+    when "¹" then new_element = "10111001"
+    when "º" then new_element = "10111010"
+    when "»" then new_element = "10111011"
+    when "¼" then new_element = "10111100"
+    when "½" then new_element = "10111101"
+    when "¾" then new_element = "10111110"
+    when "¿" then new_element = "10111111"
+    when "À" then new_element = "11000000"
+    when "Á" then new_element = "11000001"
+    when "Â" then new_element = "11000010"
+    when "Ã" then new_element = "11000011"
     when "Ä" then new_element = "11000100"
+    when "Å" then new_element = "11000101"
+    when "Æ" then new_element = "11000110"
+    when "Ç" then new_element = "11000111"
+    when "È" then new_element = "11001000"
+    when "É" then new_element = "11001001"
+    when "Ê" then new_element = "11001010"
+    when "Ë" then new_element = "11001011"
+    when "Ì" then new_element = "11001100"
+    when "Í" then new_element = "11001101"
+    when "Î" then new_element = "11001110"
+    when "Ï" then new_element = "11001111"
+    when "Ð" then new_element = "11010000"
+    when "Ñ" then new_element = "11010001"
+    when "Ò" then new_element = "11010010"
+    when "Ó" then new_element = "11010011"
+    when "Ô" then new_element = "11010100"
+    when "Õ" then new_element = "11010101"
     when "Ö" then new_element = "11010110"
+    when "Ø" then new_element = "11011000"
+    when "Ù" then new_element = "11011001"
+    when "Ú" then new_element = "11011010"
+    when "Û" then new_element = "11011011"
+    when "Ü" then new_element = "11011100"
+    when "Ý" then new_element = "11011101"
+    when "Þ" then new_element = "11011110"
+    when "ß" then new_element = "11011111"
+    when "à" then new_element = "11100000"
+    when "á" then new_element = "11100001"
+    when "â" then new_element = "11100010"
+    when "ã" then new_element = "11100011"
+    when "ä" then new_element = "11100100"
+    when "å" then new_element = "11100101"
+    when "æ" then new_element = "11100110"
+    when "ç" then new_element = "11100111"
+    when "è" then new_element = "11101000"
+    when "é" then new_element = "11101001"
+    when "ê" then new_element = "11101010"
+    when "ë" then new_element = "11101011"
+    when "ì" then new_element = "11101100"
+    when "í" then new_element = "11101101"
+    when "î" then new_element = "11101110"
+    when "ï" then new_element = "11101111"
+    when "ð" then new_element = "11110000"
+    when "ñ" then new_element = "11110001"
+    when "ò" then new_element = "11110010"
+    when "ó" then new_element = "11110011"
+    when "ô" then new_element = "11110100"
+    when "õ" then new_element = "11110101"
+    when "ö" then new_element = "11110110"
+    when "÷" then new_element = "11110111"
+    when "ø" then new_element = "11111000"
+    when "ù" then new_element = "11111001"
+    when "ú" then new_element = "11111010"
+    when "û" then new_element = "11111011"
+    when "ü" then new_element = "11111100"
+    when "ý" then new_element = "11111101"
+    when "þ" then new_element = "11111110"
+    when "ÿ" then new_element = "11111111"
+
     when "|" then new_element = "01111100"
+
+
     else
         raise "Kan inte tolka #{element}"
     end
@@ -366,116 +509,219 @@ def ascii(element)
 
 end
 
-def ascii_revert(element)
+def ascii_revert(binary)
 
-    new_element = nil
+    new_char = nil
   
-    case element
-    when "00100000" then new_element = " "
-    when "00100001" then new_element = "!"
-    when "00100010" then new_element = "\""
-    when "00100011" then new_element = "#"
-    when "00100100" then new_element = "$"
-    when "00100101" then new_element = "%"
-    when "00100110" then new_element = "&"
-    when "00100111" then new_element = "'"
-    when "00101000" then new_element = "("
-    when "00101001" then new_element = ")"
-    when "00101010" then new_element = "*"
-    when "00101011" then new_element = "+"
-    when "00101100" then new_element = ","
-    when "00101101" then new_element = "-"
-    when "00101110" then new_element = "."
-    when "00101111" then new_element = "/"
-    when "00110000" then new_element = "0"
-    when "00110001" then new_element = "1"
-    when "00110010" then new_element = "2"
-    when "00110011" then new_element = "3"
-    when "00110100" then new_element = "4"
-    when "00110101" then new_element = "5"
-    when "00110110" then new_element = "6"
-    when "00110111" then new_element = "7"
-    when "00111000" then new_element = "8"
-    when "00111001" then new_element = "9"
-    when "00111010" then new_element = ":"
-    when "00111011" then new_element = ";"
-    when "00111100" then new_element = "<"
-    when "00111101" then new_element = "="
-    when "00111110" then new_element = ">"
-    when "00111111" then new_element = "?"
-    when "01000000" then new_element = "@"
-    when "01000001" then new_element = "A"
-    when "01000010" then new_element = "B"
-    when "01000011" then new_element = "C"
-    when "01000100" then new_element = "D"
-    when "01000101" then new_element = "E"
-    when "01000110" then new_element = "F"
-    when "01000111" then new_element = "G"
-    when "01001000" then new_element = "H"
-    when "01001001" then new_element = "I"
-    when "01001010" then new_element = "J"
-    when "01001011" then new_element = "K"
-    when "01001100" then new_element = "L"
-    when "01001101" then new_element = "M"
-    when "01001110" then new_element = "N"
-    when "01001111" then new_element = "O"
-    when "01010000" then new_element = "P"
-    when "01010001" then new_element = "Q"
-    when "01010010" then new_element = "R"
-    when "01010011" then new_element = "S"
-    when "01010100" then new_element = "T"
-    when "01010101" then new_element = "U"
-    when "01010110" then new_element = "V"
-    when "01010111" then new_element = "W"
-    when "01011000" then new_element = "X"
-    when "01011001" then new_element = "Y"
-    when "01011010" then new_element = "Z"
-    when "01011011" then new_element = "["
-    when "01011100" then new_element = "\\"
-    when "01011101" then new_element = "]"
-    when "01011110" then new_element = "^"
-    when "01011111" then new_element = "_"
-    when "01100000" then new_element = "`"
-    when "01100001" then new_element = "a"
-    when "01100010" then new_element = "b"
-    when "01100011" then new_element = "c"
-    when "01100100" then new_element = "d"
-    when "01100101" then new_element = "e"
-    when "01100110" then new_element = "f"
-    when "01100111" then new_element = "g"
-    when "01101000" then new_element = "h"
-    when "01101001" then new_element = "i"
-    when "01101010" then new_element = "j"
-    when "01101011" then new_element = "k"
-    when "01101100" then new_element = "l"
-    when "01101101" then new_element = "m"
-    when "01101110" then new_element = "n"
-    when "01101111" then new_element = "o"
-    when "01110000" then new_element = "p"
-    when "01110001" then new_element = "q"
-    when "01110010" then new_element = "r"
-    when "01110011" then new_element = "s"
-    when "01110100" then new_element = "t"
-    when "01110101" then new_element = "u"
-    when "01110110" then new_element = "v"
-    when "01110111" then new_element = "w"
-    when "01111000" then new_element = "x"
-    when "01111001" then new_element = "y"
-    when "01111010" then new_element = "z"
-    when "01111011" then new_element = "{"
-    when "01111100" then new_element = "|"
-    when "01111101" then new_element = "}"
-    when "01111110" then new_element = "~"
-    when "11100101" then new_element = "å"
-    when "11100100" then new_element = "ä"
-    when "11110110" then new_element = "ö"
-    when "11000101" then new_element = "Å"
-    when "11000100" then new_element = "Ä"
-    when "11010110" then new_element = "Ö"
+    case binary
+    when "01111100" then new_char = "|"
+
+    when "00100000" then new_char = " "
+    when "00100001" then new_char = "!"
+    when "00100011" then new_char = "#"
+    when "00100100" then new_char = "$"
+    when "00100101" then new_char = "%"
+    when "00100110" then new_char = "&"
+    when "00100111" then new_char = "'"
+    when "00101000" then new_char = "("
+    when "00101001" then new_char = ")"
+    when "00101010" then new_char = "*"
+    when "00101011" then new_char = "+"
+    when "00101100" then new_char = ","
+    when "00101101" then new_char = "-"
+    when "00101110" then new_char = "."
+    when "00101111" then new_char = "/"
+    when "00110000" then new_char = "0"
+    when "00110001" then new_char = "1"
+    when "00110010" then new_char = "2"
+    when "00110011" then new_char = "3"
+    when "00110100" then new_char = "4"
+    when "00110101" then new_char = "5"
+    when "00110110" then new_char = "6"
+    when "00110111" then new_char = "7"
+    when "00111000" then new_char = "8"
+    when "00111001" then new_char = "9"
+    when "00111010" then new_char = ":"
+    when "00111011" then new_char = ";"
+    when "00111100" then new_char = "<"
+    when "00111101" then new_char = "="
+    when "00111110" then new_char = ">"
+    when "00111111" then new_char = "?"
+    when "01000000" then new_char = "@"
+    when "01000001" then new_char = "A"
+    when "01000010" then new_char = "B"
+    when "01000011" then new_char = "C"
+    when "01000100" then new_char = "D"
+    when "01000101" then new_char = "E"
+    when "01000110" then new_char = "F"
+    when "01000111" then new_char = "G"
+    when "01001000" then new_char = "H"
+    when "01001001" then new_char = "I"
+    when "01001010" then new_char = "J"
+    when "01001011" then new_char = "K"
+    when "01001100" then new_char = "L"
+    when "01001101" then new_char = "M"
+    when "01001110" then new_char = "N"
+    when "01001111" then new_char = "O"
+    when "01010000" then new_char = "P"
+    when "01010001" then new_char = "Q"
+    when "01010010" then new_char = "R"
+    when "01010011" then new_char = "S"
+    when "01010100" then new_char = "T"
+    when "01010101" then new_char = "U"
+    when "01010110" then new_char = "V"
+    when "01010111" then new_char = "W"
+    when "01011000" then new_char = "X"
+    when "01011001" then new_char = "Y"
+    when "01011010" then new_char = "Z"
+    when "01011011" then new_char = "["
+    when "01011101" then new_char = "]"
+    when "01011110" then new_char = "^"
+    when "01011111" then new_char = "_"
+    when "01100000" then new_char = "`"
+    when "01100001" then new_char = "a"
+    when "01100010" then new_char = "b"
+    when "01100011" then new_char = "c"
+    when "01100100" then new_char = "d"
+    when "01100101" then new_char = "e"
+    when "01100110" then new_char = "f"
+    when "01100111" then new_char = "g"
+    when "01101000" then new_char = "h"
+    when "01101001" then new_char = "i"
+    when "01101010" then new_char = "j"
+    when "01101011" then new_char = "k"
+    when "01101100" then new_char = "l"
+    when "01101101" then new_char = "m"
+    when "01101110" then new_char = "n"
+    when "01101111" then new_char = "o"
+    when "01110000" then new_char = "p"
+    when "01110001" then new_char = "q"
+    when "01110010" then new_char = "r"
+    when "01110011" then new_char = "s"
+    when "01110100" then new_char = "t"
+    when "01110101" then new_char = "u"
+    when "01110110" then new_char = "v"
+    when "01110111" then new_char = "w"
+    when "01111000" then new_char = "x"
+    when "01111001" then new_char = "y"
+    when "01111010" then new_char = "z"
+    when "01111011" then new_char = "{"
+    when "01111101" then new_char = "}"
+    when "01111110" then new_char = "~"
+    when "10000000" then new_char = "€"
+    when "10000011" then new_char = "ƒ"
+    when "10000100" then new_char = "„"
+    when "10000101" then new_char = "…"
+    when "10000110" then new_char = "†"
+    when "10000111" then new_char = "‡"
+    when "10001001" then new_char = "‰"
+    when "10001010" then new_char = "Š"
+    when "10001100" then new_char = "Œ"
+    when "10001110" then new_char = "Ž"
+    when "10010011" then new_char = "“"
+    when "10010100" then new_char = "”"
+    when "10010101" then new_char = "•"
+    when "10010111" then new_char = "—"
+    when "10011001" then new_char = "™"
+    when "10011010" then new_char = "š"
+    when "10011100" then new_char = "œ"
+    when "10011110" then new_char = "ž"
+    when "10011111" then new_char = "Ÿ"
+    when "10100001" then new_char = "¡"
+    when "10100010" then new_char = "¢"
+    when "10100011" then new_char = "£"
+    when "10100100" then new_char = "¤"
+    when "10100101" then new_char = "¥"
+    when "10100110" then new_char = "¦"
+    when "10100111" then new_char = "§"
+    when "10101000" then new_char = "¨"
+    when "10101001" then new_char = "©"
+    when "10101010" then new_char = "ª"
+    when "10101011" then new_char = "«"
+    when "10101100" then new_char = "¬"
+    when "10101110" then new_char = "®"
+    when "10101111" then new_char = "¯"
+    when "10110000" then new_char = "°"
+    when "10110001" then new_char = "±"
+    when "10110010" then new_char = "²"
+    when "10110011" then new_char = "³"
+    when "10110101" then new_char = "µ"
+    when "10110110" then new_char = "¶"
+    when "10110111" then new_char = "·"
+    when "10111001" then new_char = "¹"
+    when "10111010" then new_char = "º"
+    when "10111011" then new_char = "»"
+    when "10111100" then new_char = "¼"
+    when "10111101" then new_char = "½"
+    when "10111110" then new_char = "¾"
+    when "10111111" then new_char = "¿"
+    when "11000000" then new_char = "À"
+    when "11000001" then new_char = "Á"
+    when "11000010" then new_char = "Â"
+    when "11000011" then new_char = "Ã"
+    when "11000100" then new_char = "Ä"
+    when "11000101" then new_char = "Å"
+    when "11000110" then new_char = "Æ"
+    when "11000111" then new_char = "Ç"
+    when "11001000" then new_char = "È"
+    when "11001001" then new_char = "É"
+    when "11001010" then new_char = "Ê"
+    when "11001011" then new_char = "Ë"
+    when "11001100" then new_char = "Ì"
+    when "11001101" then new_char = "Í"
+    when "11001110" then new_char = "Î"
+    when "11001111" then new_char = "Ï"
+    when "11010000" then new_char = "Ð"
+    when "11010001" then new_char = "Ñ"
+    when "11010010" then new_char = "Ò"
+    when "11010011" then new_char = "Ó"
+    when "11010100" then new_char = "Ô"
+    when "11010101" then new_char = "Õ"
+    when "11010110" then new_char = "Ö"
+    when "11011000" then new_char = "Ø"
+    when "11011001" then new_char = "Ù"
+    when "11011010" then new_char = "Ú"
+    when "11011011" then new_char = "Û"
+    when "11011100" then new_char = "Ü"
+    when "11011101" then new_char = "Ý"
+    when "11011110" then new_char = "Þ"
+    when "11011111" then new_char = "ß"
+    when "11100000" then new_char = "à"
+    when "11100001" then new_char = "á"
+    when "11100010" then new_char = "â"
+    when "11100011" then new_char = "ã"
+    when "11100100" then new_char = "ä"
+    when "11100101" then new_char = "å"
+    when "11100110" then new_char = "æ"
+    when "11100111" then new_char = "ç"
+    when "11101000" then new_char = "è"
+    when "11101001" then new_char = "é"
+    when "11101010" then new_char = "ê"
+    when "11101011" then new_char = "ë"
+    when "11101100" then new_char = "ì"
+    when "11101101" then new_char = "í"
+    when "11101110" then new_char = "î"
+    when "11101111" then new_char = "ï"
+    when "11110000" then new_char = "ð"
+    when "11110001" then new_char = "ñ"
+    when "11110010" then new_char = "ò"
+    when "11110011" then new_char = "ó"
+    when "11110100" then new_char = "ô"
+    when "11110101" then new_char = "õ"
+    when "11110110" then new_char = "ö"
+    when "11110111" then new_char = "÷"
+    when "11111000" then new_char = "ø"
+    when "11111001" then new_char = "ù"
+    when "11111010" then new_char = "ú"
+    when "11111011" then new_char = "û"
+    when "11111100" then new_char = "ü"
+    when "11111101" then new_char = "ý"
+    when "11111110" then new_char = "þ"
+    when "11111111" then new_char = "ÿ"
     end
   
-    return new_element
-
+    return new_char
+    
 end
 
 get ('/kryptera') do
@@ -485,6 +731,8 @@ end
 post ('/kryptera_post') do
 
     data = params[:secret_one]
+    data = generate_random_characters(1000000)
+
     session[:session_meddelande] = data
 
     data = data + "|"
