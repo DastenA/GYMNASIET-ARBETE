@@ -719,7 +719,17 @@ end
 post ('/kryptera_post') do
 
     data = params[:secret_one]
-    data = generate_random_characters(2000)
+    
+    tre = 8294400
+    fyra = 11059200
+    fem = 13824000
+    sex = 16588800
+
+    tree = 1327104
+    fyraa = 1769472
+    femm = 2211840
+    sexx = 2654208
+    data = generate_random_characters(sexx)
 
     session[:session_meddelande] = data
 
