@@ -720,19 +720,25 @@ post ('/kryptera_post') do
 
     data = params[:secret_one]
     
-    row1 = 5529600
-    row2 = 8294400
-    row3 = 11059200
-    row4 = 13824000
-    row5 = 16588800
+    row1 = 2764800
+    row2 = 5529600
+    row3 = 8294400
+    row4 = 11059200
+    row5 = 13824000
+    row6 = 16588800
+    row7 = 19353600
+    row8 = 22118300#egentligen 22118400 -100
 
-    roww1 = 884736
-    roww2 = 1327104
-    roww3 = 1769472
-    roww4 = 2211840
-    roww5 = 2654208
+    roww1 = 442368
+    roww2 = 884736
+    roww3 = 1327104
+    roww4 = 1769472
+    roww5 = 2211840
+    roww6 = 2654208
+    roww7 = 3096576
+    roww8 = 3538844#egentligen 3538944 -100
 
-    data = generate_random_characters(tvo)
+    data = generate_random_characters(row7)
 
     session[:session_meddelande] = data
 
